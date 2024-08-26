@@ -1,0 +1,92 @@
+<!-- templates/result.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prediction Results</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="container mt-5">
+        <div class="row mb-4">
+            <div class="col text-center">
+                <h1>Prediction Results</h1>
+                <div class="alert alert-info">
+                    <p><strong>Estimated Marathon Time:</strong> {{ marathon_time }}</p>
+                    <p><strong>Estimated Half Marathon Time:</strong> {{ half_marathon_time }}</p>
+                    <p><strong>Pace:</strong> {{ predicted_pace|floatformat:2 }} min/km</p>
+                    <p><strong>Average BPM:</strong> {{ predicted_avg_bpm|floatformat:2 }} bpm</p>
+                    <p><strong>Stride:</strong> {{ predicted_stride|floatformat:2 }} meters</p>
+                    <p><strong>Cadence:</strong> {{ predicted_cadence|floatformat:2 }} steps/min</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="row mb-4">
+            <div class="col text-center">
+                <h3>Distance vs Pace</h3>
+                <canvas id="distancePaceChart" width="600" height="300"></canvas>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col text-center">
+                <a href="{% url 'predict' %}" class="btn btn-primary">Go Back</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap JS and dependencies -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <!-- Chart.js -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var chartData = JSON.parse('{{ chart_data|escapejs }}');
+
+            var ctx = document.getElementById('distancePaceChart').getContext('2d');
+            if (ctx) { // Ensure canvas element is present
+                var myChart = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: chartData.distances,
+                        datasets: [{
+                            label: 'Pace vs Distance',
+                            data: chartData.paces,
+                            borderColor: 'rgba(75, 192, 192, 1)',
+                            backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                            fill: false,
+                            tension: 0.1
+                        }]
+                    },
+                    options: {
+                        scales: {
+                            x: {
+                                title: {
+                                    display: true,
+                                    text: 'Distance (km)'
+                                }
+                            },
+                            y: {
+                                title: {
+                                    display: true,
+                                    text: 'Pace (min/km)'
+                                }
+                            }
+                        }
+                    }
+                });
+            } else {
+                console.error('Canvas element with ID distancePaceChart not found.');
+            }
+        });
+    </script>
+</body>
+</html>
